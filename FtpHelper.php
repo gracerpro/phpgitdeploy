@@ -138,7 +138,7 @@ class FtpHelper
 	 */
 	function setPort($port)
 	{
-		$this->port = $port;
+		$this->port = $port > 0 ? $port : 21;
 		return $this;
 	}
 

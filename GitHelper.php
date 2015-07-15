@@ -1,6 +1,8 @@
 <?php
 namespace gracerpro\gitdeploy;
 
+include_once __DIR__ . '/Config.php';
+
 class GitHelper
 {
 	//
@@ -16,12 +18,7 @@ class GitHelper
 	/**
 	 * @var string
 	 */
-	protected $gitDir;
-
-	/**
-	 * @var string
-	 */
-	protected $diffMode = self::DIFF_COMMITS;
+	protected $diffMode = self::DIFF_CURRENT_BRANCH;
 
 	/**
 	 * @var array
@@ -36,7 +33,6 @@ class GitHelper
 	public function __construct($gitDeploy)
 	{
 		$this->gitDeploy = $gitDeploy;
-		$this->gitDir = '';
 	}
 
 	/**
@@ -59,7 +55,9 @@ class GitHelper
 	 */
 	private function getGitCommand()
 	{
-		return empty($this->gitDir) ? 'git' : $this->gitDir . '/git';
+		$config = \gracerpro\gitdeploy\Config::getInstance();
+		$gitDir = $config->getBinGitDir();
+		return $gitDir ? $gitDir . '/git' : 'git';
 	}
 
 	/**

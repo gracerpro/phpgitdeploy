@@ -1,7 +1,6 @@
 <?php
 
-$appDir = (__DIR__);
-include_once $appDir . '/GitDeploy.php';
+include_once __DIR__ . '/GitDeploy.php';
 
 try {
 

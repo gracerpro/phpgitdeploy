@@ -1,7 +1,13 @@
 <?php
 namespace gracerpro\gitdeploy;
 
-include_once './GitHelper.php';
+include_once __DIR__ . '/GitHelper.php';
+include_once __DIR__ . '/FtpHelper.php';
+include_once __DIR__ . '/Config.php';
+
+use gracerpro\gitdeploy\GitHelper;
+use gracerpro\gitdeploy\FtpHelper;
+use gracerpro\gitdeploy\Config;
 
 class GitDeploy
 {
@@ -11,14 +17,9 @@ class GitDeploy
 	protected $gitHelper;
 
 	/**
-	 * @var array
+	 * @var \gracerpro\gitdeploy\Config
 	 */
 	protected $config;
-
-	/**
-	 * @var string
-	 */
-	protected $settingDir;
 
 	/**
 	 * @var string
@@ -30,22 +31,23 @@ class GitDeploy
 	 */
 	public function __construct()
 	{
-		$this->gitHelper = new \gracerpro\gitdeploy\GitHelper($this);
+		$this->gitHelper = new GitHelper($this);
+		$this->config = Config::getInstance();
 
-		$this->readConfig();
+		$this->changeCurrentDIrectory();
 	}
 
 	public function deploy()
 	{
 		$ftpHelper = new \gracerpro\gitdeploy\FtpHelper();
-		$ftpHelper->setHost($this->config['ftp.host']);
-		$ftpHelper->setPort($this->config['ftp.port']);
-		$ftpHelper->setUsername($this->config['ftp.username']);
-		$ftpHelper->setPassword($this->config['ftp.password']);
+		$ftpHelper->setHost($this->config->getValue('ftp.host'));
+		$ftpHelper->setPort($this->config->getValue('ftp.port'));
+		$ftpHelper->setUsername($this->config->getValue('ftp.username'));
+		$ftpHelper->setPassword($this->config->getValue('ftp.password'));
 
 		$ftpHelper->connect();
 		$ftpHelper->setPasv(true);
-		$ftpHelper->changeDir($this->config['ftp.chdir']);
+		$ftpHelper->changeDir($this->config->getValue('ftp.chdir'));
 
 		echo 'Server file system: ' . $ftpHelper->getSysType(), "\n";
 
@@ -60,7 +62,7 @@ class GitDeploy
 		}
 
 		echo "\tUpdating/Creating...\n";
-		$projectDir = '';
+		$projectDir = $this->config->getProjectDir();
 		foreach ($updatedFiles as $name) {
 			$sourcePath = $projectDir . '/' . $name;
 			echo $name, "\n";
@@ -71,46 +73,19 @@ class GitDeploy
 	}
 
 	/**
-	 * @return boolean
-	 * @throws Exception
+	 * exclude self project, "git" found target project
 	 */
-	private function readConfig()
-	{
-		$config = parse_ini_file(self::getSettingFileName());
-		if (!$config) {
-			throw new Exception('Failed to open file: ' . self::getSettingFileName());
+	private function changeCurrentDIrectory() {
+		if ($this->config->getProjectDir()) {
+			echo "Change current dir: {$this->config->getProjectDir()}\n";
+			chdir($this->config->getProjectDir());
 		}
-		if (empty($config['ftp.username']) || empty($config['ftp.password']) || empty($config['ftp.host'])) {
-			throw new Exception("Empty ftp.username, ftp.password or ftp.host\n");
-		}
-
-		$this->config = $config;
-
-		return true;
 	}
 
 	/**
 	 * @return string
 	 */
-	public function getSettingDir()
-	{
-		return $this->settingDir;
-	}
-
-	/**
-	 * @param string $settingDir
-	 * @return \gracerpro\gitdeploy\GitDeploy
-	 */
-	public function setSettingDir($settingDir)
-	{
-		$this->settingDir = $settingDir;
-		return $this;
-	}
-
-	/**
-	 * @return string
-	 */
-	protected static function getSettingFileName()
+	public static function getSettingFileName()
 	{
 		return 'deploy.properties';
 	}
@@ -129,7 +104,7 @@ class GitDeploy
 	public function readLastDelpoyedCommit()
 	{
 		if ($this->lastDeployedCommit === null) {
-			$filePath = $this->settingDir . '/' . self::getLastCommitFileName();
+			$filePath = $this->config->getSettingDir() . '/' . self::getLastCommitFileName();
 			if (!file_exists($filePath)) {
 				$h = fopen($filePath, 'w');
 				fclose($h);
@@ -156,14 +131,14 @@ class GitDeploy
 	 */
 	public function endDeploy()
 	{
-		if ($this->diffMode === self::DIFF_COMMITS) {
+		if ($this->gitHelper->getDiffMode() === GitHelper::DIFF_COMMITS) {
 			return false;
 		}
 		$commit = $this->gitHelper->gitGetLastCommitHash();
 
 		// write current commit
 		$result = false;
-		$filePath = $this->settingDir . '/' . self::getLastCommitFileName();
+		$filePath = $this->config->getSettingDir() . '/' . self::getLastCommitFileName();
 		$h = fopen($filePath, 'w');
 		if ($h) {
 			$result = fwrite($h, $commit) > 0;
