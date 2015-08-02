@@ -185,13 +185,30 @@ class FtpHelper
 	/**
 	 * @param string $fileName
 	 * @param string $sourcePath
+	 * @param boolean $secondary If this is true then file will not put secondary
 	 * @return boolean
 	 */
-	public function putFile($fileName, $sourcePath)
+	public function putFile($fileName, $sourcePath, $secondary = false)
 	{
 		$txtExtensions = ['txt', 'php', 'js', 'css', 'less', 'html', 'xml'];
 		$ext = substr($fileName, strrpos($fileName, '.') + 1);
 		$mode = in_array($ext, $txtExtensions) ? FTP_ASCII : FTP_BINARY;
-		return ftp_put($this->connection, $fileName, $sourcePath, $mode);
+		$putResult = ftp_put($this->connection, $fileName, $sourcePath, $mode);
+		if (!$putResult && !$secondary) {
+			// try to create a directory
+			$directories = explode('/', $fileName);
+			$config = \gracerpro\gitdeploy\Config::getInstance();
+			$dir = $config->getValue('ftp.chdir') === '/' ? '' : $config->getValue('ftp.chdir');
+			for ($i = 0; $i < count($directories) - 1; ++$i) {
+				$dir .= '/' . $directories[$i];
+				$mkdirResult = ftp_mkdir($this->connection, $dir);
+				if ($mkdirResult) {
+					echo "Create remote directory: $dir\n";
+				}
+			}
+			// secondary put a file
+			$putResult = $this->putFile($fileName, $sourcePath);
+		}
+		return $putResult;
 	}
 }
