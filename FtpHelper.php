@@ -147,6 +147,7 @@ class FtpHelper
 	 */
 	public function changeDir($directory)
 	{
+		echo "Change remote directory: $directory\n";
 		return ftp_chdir($this->connection, $directory);
 	}
 
@@ -184,11 +185,13 @@ class FtpHelper
 	/**
 	 * @param string $fileName
 	 * @param string $sourcePath
-	 * @param string $mode
 	 * @return boolean
 	 */
-	public function putFile($fileName, $sourcePath, $mode = FTP_ASCII)
+	public function putFile($fileName, $sourcePath)
 	{
+		$txtExtensions = ['txt', 'php', 'js', 'css', 'less', 'html', 'xml'];
+		$ext = substr($fileName, strrpos($fileName, '.') + 1);
+		$mode = in_array($ext, $txtExtensions) ? FTP_ASCII : FTP_BINARY;
 		return ftp_put($this->connection, $fileName, $sourcePath, $mode);
 	}
 }

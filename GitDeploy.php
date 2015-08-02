@@ -34,7 +34,7 @@ class GitDeploy
 		$this->gitHelper = new GitHelper($this);
 		$this->config = Config::getInstance();
 
-		$this->changeCurrentDIrectory();
+		$this->changeCurrentDirectory();
 	}
 
 	public function deploy()
@@ -49,7 +49,7 @@ class GitDeploy
 		$ftpHelper->setPasv(true);
 		$ftpHelper->changeDir($this->config->getValue('ftp.chdir'));
 
-		echo 'Server file system: ' . $ftpHelper->getSysType(), "\n";
+		echo 'Server`s file system: ' . $ftpHelper->getSysType(), "\n";
 
 		/* get files */
 		$deletedFiles = $this->gitHelper->getFilesForDeleting();
@@ -57,16 +57,16 @@ class GitDeploy
 
 		echo "\tDeleting...\n";
 		foreach ($deletedFiles as $name) {
-			echo $name, "\n";
-			$ftpHelper->deleteFile($name);
+			$result = $ftpHelper->deleteFile($name);
+			echo $result ? 'OK' : 'FAILED', " $name\n";
 		}
 
 		echo "\tUpdating/Creating...\n";
 		$projectDir = $this->config->getProjectDir();
 		foreach ($updatedFiles as $name) {
 			$sourcePath = $projectDir . '/' . $name;
-			echo $name, "\n";
-			$ftpHelper->putFile($name, $sourcePath, FTP_TEXT);
+			$result = $ftpHelper->putFile($name, $sourcePath);
+			echo $result ? 'OK' : 'FAILED', " $name\n";
 		}
 
 		$this->endDeploy();
@@ -75,9 +75,9 @@ class GitDeploy
 	/**
 	 * exclude self project, "git" found target project
 	 */
-	private function changeCurrentDIrectory() {
+	private function changeCurrentDirectory() {
 		if ($this->config->getProjectDir()) {
-			echo "Change current dir: {$this->config->getProjectDir()}\n";
+			echo "Change local dir: {$this->config->getProjectDir()}\n";
 			chdir($this->config->getProjectDir());
 		}
 	}
