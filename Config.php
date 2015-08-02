@@ -28,6 +28,11 @@ class Config
 	 */
 	public $gitBinDir = '';
 
+	/**
+	 * @var string
+	 */
+	private $gitDiff = '';
+
 	private function __construct() {
 		$config = parse_ini_file(\gracerpro\gitdeploy\GitDeploy::getSettingFileName());
 		if (!$config) {
@@ -42,6 +47,9 @@ class Config
 		}
 		if (!empty($config['settingDir'])) {
 			$this->settingDir = trim($config['settingDir']);
+		}
+		if (!empty($config['git.diff'])) {
+			$this->gitDiff = trim($config['git.diff']);
 		}
 
 		self::$config = $config;
@@ -99,5 +107,13 @@ class Config
 	{
 		$this->settingDir = $dir;
 		return $this;
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getGitDiff()
+	{
+		return $this->gitDiff;
 	}
 }

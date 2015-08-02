@@ -11,14 +11,15 @@ class GitHelper
 	const FILE_UPDATE = 'M';
 
 	// `git diff` between
-	const DIFF_COMMITS        = 'commits';  // git diff sha1 sha1
-	const DIFF_CURRENT_BRANCH = 'branch';   // git diff master branch
-	const DIFF_BRANCHES       = 'branches'; // git diff branch1 branch2
+	const DIFF_COMMITS             = 'commits';  // git diff sha1 sha1
+	const DIFF_CURRENT_BRANCH      = 'branch';   // git diff master branch
+	const DIFF_BRANCHES            = 'branches'; // git diff branch1 branch2
+	const DIFF_ORIGINMASTER_MASTER = 'origin/master master';
 
 	/**
 	 * @var string
 	 */
-	protected $diffMode = self::DIFF_CURRENT_BRANCH;
+	protected $diffMode;
 
 	/**
 	 * @var array
@@ -90,8 +91,12 @@ class GitHelper
 	/**
 	 * @return string
 	 */
-	protected function gitGetDiffBranchNameStatus() {
-		$params = "diff master...HEAD --name-status";
+	protected function gitGetDiffNameStatus()
+	{
+		if (empty($this->diffMode)) {
+			$this->diffMode = 'origin/master master';
+		}
+		$params = 'diff ' . $this->diffMode . ' --name-status';
 		$command = $this->getGitCommand() . ' ' . $params;
 		echo $command, "\n";
 
@@ -107,14 +112,8 @@ class GitHelper
 	{
 		if ($this->gitNameStatusFiles === null) {
 			$files = [];
-			if ($this->diffMode === self::DIFF_CURRENT_BRANCH) {
-				$output = $this->gitGetDiffBranchNameStatus();
-			}
-			else {
-				$earlyCommit = $this->gitDeploy->readLastDelpoyedCommit();
-				$output = $this->gitGetDiffCommitsNameStatus($earlyCommit, 'HEAD');
-			}
 
+			$output = $this->gitGetDiffNameStatus();
 			if (($count = preg_match_all('/([\w]+)\t([\w\._\-\\/]+)\n/', $output, $matches)) > 0) {
 				$statuses = $matches[1];
 				$fileNames = $matches[2];
