@@ -166,7 +166,7 @@ class GitHelper
 	/**
 	 * @param string $command
 	 * @return array
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	private function executeCommand($command)
 	{
@@ -178,7 +178,7 @@ class GitHelper
 		];
 		$process = proc_open($command, $descriptors, $pipes);
 		if (!is_resource($process)) {
-			throw new Exception("Can't open resource with proc_open.");
+			throw new \Exception("Can't open resource with proc_open.");
 		}
 		fclose($pipes[0]);
 		$output = stream_get_contents($pipes[1]);

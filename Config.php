@@ -36,10 +36,10 @@ class Config
 	private function __construct() {
 		$config = parse_ini_file(\gracerpro\gitdeploy\GitDeploy::getSettingFileName());
 		if (!$config) {
-			throw new Exception('Failed to open file: ' . self::getSettingFileName());
+			throw new \Exception('Failed to open file: ' . self::getSettingFileName());
 		}
 		if (empty($config['ftp.username']) || empty($config['ftp.password']) || empty($config['ftp.host'])) {
-			throw new Exception("Empty ftp.username, ftp.password or ftp.host\n");
+			throw new \Exception("Empty ftp.username, ftp.password or ftp.host\n");
 		}
 		$this->gitBinDir = empty($config['gitBinDir']) ? '' : trim($config['gitBinDir']);
 		if (!empty($config['projectDir'])) {

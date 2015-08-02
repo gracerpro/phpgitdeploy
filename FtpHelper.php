@@ -49,17 +49,17 @@ class FtpHelper
 
 	/**
 	 * @return boolean
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public function connect()
 	{
 		$this->connection = ftp_connect($this->host, $this->port);
 		if (!$this->connection) {
-			throw new Exception("Could't connect to host {$this->host} and port {$this->port}.");
+			throw new \Exception("Could't connect to host {$this->host} and port {$this->port}.");
 		}
 		$loginResult = ftp_login($this->connection, $this->username, $this->password);
 		if (!$loginResult) {
-			throw new Exception("Failed to login for user {$this->username}\n");
+			throw new \Exception("Failed to login for user {$this->username}\n");
 		}
 
 		return true;
