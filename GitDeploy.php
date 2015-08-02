@@ -55,6 +55,9 @@ class GitDeploy
 		$deletedFiles = $this->gitHelper->getFilesForDeleting();
 		$updatedFiles = $this->gitHelper->getFilesForUpdating();
 
+		$currentErrorReporting = error_reporting();
+		error_reporting($currentErrorReporting & ~E_WARNING);
+
 		echo "\tDeleting...\n";
 		foreach ($deletedFiles as $name) {
 			$result = $ftpHelper->deleteFile($name);
@@ -68,6 +71,8 @@ class GitDeploy
 			$result = $ftpHelper->putFile($name, $sourcePath);
 			echo $result ? 'OK' : 'FAILED', " $name\n";
 		}
+
+		error_reporting($currentErrorReporting);
 
 		$this->endDeploy();
 	}
