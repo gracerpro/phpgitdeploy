@@ -34,6 +34,8 @@ class GitDeploy
 		$this->gitHelper = new GitHelper($this);
 		$this->config = Config::getInstance();
 
+		$this->gitHelper->setDiffMode($this->config->getGitDiff());
+
 		$this->changeCurrentDirectory();
 	}
 
