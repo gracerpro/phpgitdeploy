@@ -83,10 +83,12 @@ class GitDeploy
 	 * exclude self project, "git" found target project
 	 */
 	private function changeCurrentDirectory() {
+		$result = false;
 		if ($this->config->getProjectDir()) {
 			echo "Change local dir: {$this->config->getProjectDir()}\n";
-			chdir($this->config->getProjectDir());
+			$result = chdir($this->config->getProjectDir());
 		}
+		return $result;
 	}
 
 	/**

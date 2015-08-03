@@ -65,9 +65,12 @@ class FtpHelper
 		return true;
 	}
 
+	/**
+	 * @return boolean
+	 */
 	public function close()
 	{
-		ftp_close($this->connection);
+		return ftp_close($this->connection);
 	}
 
 	/**
