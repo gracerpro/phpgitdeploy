@@ -210,8 +210,13 @@ class FtpHelper
 				}
 			}
 			// secondary put a file
-			$putResult = $this->putFile($fileName, $sourcePath);
+			$putResult = $this->putFile($fileName, $sourcePath, true);
 		}
 		return $putResult;
+	}
+
+	public function getFileList()
+	{
+		return ftp_nlist($this->connection, '/');
 	}
 }

@@ -33,6 +33,26 @@ class Config
 	 */
 	private $gitDiff = '';
 
+	/**
+	 * @var integer
+	 */
+	private $deletedLimit = -1;
+
+	/**
+	 * @var integer
+	 */
+	private $updatedLimit = -1;
+
+	/**
+	 * @var integer
+	 */
+	private $excludeProjectDir = 0;
+
+	/**
+	 * @var boolean
+	 */
+	private $hideWarnings = false;
+
 	private function __construct() {
 		$config = parse_ini_file(\gracerpro\gitdeploy\GitDeploy::getSettingFileName());
 		if (!$config) {
@@ -51,6 +71,19 @@ class Config
 		if (!empty($config['git.diff'])) {
 			$this->gitDiff = trim($config['git.diff']);
 		}
+
+		if (!empty($config['limit.deletedFiles'])) {
+			$this->deletedLimit = (int)$config['limit.deletedFiles'];
+		}
+		if (!empty($config['limit.updatedFiles'])) {
+			$this->updatedLimit = (int)$config['limit.updatedFiles'];
+		}
+
+		if (!empty($config['excludeProjectDir'])) {
+			$this->excludeProjectDir = (int)$config['excludeProjectDir'];
+		}
+
+		$this->hideWarnings = empty($config['reporting.warnings']);
 
 		self::$config = $config;
 	}
@@ -75,6 +108,38 @@ class Config
 			return trim(self::$config[$name]);
 		}
 		return null;
+	}
+
+	/**
+	 * @return integer
+	 */
+	public function getDeletedFilesLimit()
+	{
+		return $this->deletedLimit;
+	}
+
+	/**
+	 * @return integer
+	 */
+	public function getUpdatedFilesLimit()
+	{
+		return $this->updatedLimit;
+	}
+
+	/**
+	 * @return integer
+	 */
+	public function getExcludeProjectDir()
+	{
+		return $this->excludeProjectDir;
+	}
+
+	/**
+	 * @return boolean
+	 */
+	public function getHideWarnings()
+	{
+		return $this->hideWarnings;
 	}
 
 	/**

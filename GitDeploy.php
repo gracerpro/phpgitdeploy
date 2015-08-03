@@ -58,20 +58,47 @@ class GitDeploy
 		$updatedFiles = $this->gitHelper->getFilesForUpdating();
 
 		$currentErrorReporting = error_reporting();
-		error_reporting($currentErrorReporting & ~E_WARNING);
+		if ($this->config->getHideWarnings()) {
+			error_reporting($currentErrorReporting & ~E_WARNING);
+		}
 
+		$excludeProjectDir = $this->config->getExcludeProjectDir();
 		echo "\tDeleting...\n";
+		$i = 0;
+		$deletedLimit = $this->config->getUpdatedFilesLimit();
 		foreach ($deletedFiles as $name) {
+			if ($deletedLimit >= 0 && $i >= $deletedLimit) {
+				break;
+			}
+			if ($excludeProjectDir) {
+				$name = substr($name, $excludeProjectDir);
+			}
+			if (empty($name)) {
+				continue;
+			}
 			$result = $ftpHelper->deleteFile($name);
 			echo $result ? 'OK' : 'FAILED', " $name\n";
+			++$i;
 		}
 
 		echo "\tUpdating/Creating...\n";
 		$projectDir = $this->config->getProjectDir();
+		$updatedLimit = $this->config->getUpdatedFilesLimit();
+		$i = 0;
 		foreach ($updatedFiles as $name) {
+			if ($updatedLimit >= 0 && $i >= $updatedLimit) {
+				break;
+			}
 			$sourcePath = $projectDir . '/' . $name;
+			if ($excludeProjectDir) {
+				$name = substr($name, $excludeProjectDir);
+			}
+			if (empty($name)) {
+				continue;
+			}
 			$result = $ftpHelper->putFile($name, $sourcePath);
 			echo $result ? 'OK' : 'FAILED', " $name\n";
+			++$i;
 		}
 
 		error_reporting($currentErrorReporting);
