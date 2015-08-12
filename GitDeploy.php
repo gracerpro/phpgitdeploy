@@ -63,7 +63,7 @@ class GitDeploy
 		}
 
 		$excludeProjectDir = $this->config->getExcludeProjectDir();
-		echo "\tDeleting...\n";
+		echo "\tDeleting " . count($deletedFiles) . " files...\n";
 		$i = 0;
 		$deletedLimit = $this->config->getUpdatedFilesLimit();
 		foreach ($deletedFiles as $name) {
@@ -81,7 +81,7 @@ class GitDeploy
 			++$i;
 		}
 
-		echo "\tUpdating/Creating...\n";
+		echo "\tUpdating/Creating " . count($updatedFiles) . " files...\n";
 		$projectDir = $this->config->getProjectDir();
 		$updatedLimit = $this->config->getUpdatedFilesLimit();
 		$i = 0;
