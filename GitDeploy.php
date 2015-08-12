@@ -127,34 +127,6 @@ class GitDeploy
 	}
 
 	/**
-	 * @return string
-	 */
-	protected static function getLastCommitFileName()
-	{
-		return 'last_commit.txt';
-	}
-
-	/**
-	 * @return string
-	 */
-	public function readLastDelpoyedCommit()
-	{
-		if ($this->lastDeployedCommit === null) {
-			$filePath = $this->config->getSettingDir() . '/' . self::getLastCommitFileName();
-			if (!file_exists($filePath)) {
-				$h = fopen($filePath, 'w');
-				fclose($h);
-			}
-			$commit = file_get_contents($filePath);
-			if (empty($commit)) {
-				$commit = 'HEAD~1';
-			}
-			$this->lastDeployedCommit = $commit;
-		}
-		return $this->lastDeployedCommit;
-	}
-
-	/**
 	 * 
 	 */
 	public function beginDeploy()
@@ -167,20 +139,6 @@ class GitDeploy
 	 */
 	public function endDeploy()
 	{
-		if ($this->gitHelper->getDiffMode() === GitHelper::DIFF_COMMITS) {
-			return false;
-		}
-		$commit = $this->gitHelper->gitGetLastCommitHash();
 
-		// write current commit
-		$result = false;
-		$filePath = $this->config->getSettingDir() . '/' . self::getLastCommitFileName();
-		$h = fopen($filePath, 'w');
-		if ($h) {
-			$result = fwrite($h, $commit) > 0;
-			fclose($h);
-		}
-
-		return $result;
 	}
 }
