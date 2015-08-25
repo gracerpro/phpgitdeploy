@@ -4,6 +4,7 @@ namespace gracerpro\gitdeploy;
 include_once __DIR__ . '/GitHelper.php';
 include_once __DIR__ . '/FtpHelper.php';
 include_once __DIR__ . '/Config.php';
+include_once __DIR__ . '/InputReader.php';
 
 use gracerpro\gitdeploy\GitHelper;
 use gracerpro\gitdeploy\FtpHelper;
@@ -27,6 +28,11 @@ class GitDeploy
 	protected $lastDeployedCommit;
 
 	/**
+	 * @var array
+	 */
+	protected $arguments = [];
+
+	/**
 	 * 
 	 */
 	public function __construct()
@@ -34,13 +40,65 @@ class GitDeploy
 		$this->gitHelper = new GitHelper($this);
 		$this->config = Config::getInstance();
 
-		$this->gitHelper->setDiffMode($this->config->getGitDiff());
-
 		$this->changeCurrentDirectory();
+
+		$this->readArguments();
+	}
+
+	/**
+	 * Read arguments from command line
+	 * PHP seeks first '--'
+	 * @return boolean
+	 */
+	private function readArguments() {
+		$this->arguments = [];
+		global $argv;
+
+		if (isset($argv) && is_array($argv)) {
+			$count = count($argv);
+			for ($i = 1; $i < $count; ++$i) {
+				$arg = $argv[$i];
+				$isParamName = $arg{0} === '-';
+				if ($isParamName) {
+					$paramName = ltrim($arg, '-');
+					$this->arguments[$paramName] = null;
+					if (++$i >= $count) {
+						break;
+					}
+					$nextArg = $argv[$i];
+					$this->arguments[$paramName] = $nextArg;
+				}
+				else {
+					$this->arguments[] = $arg;
+				}
+			}
+		}
+		return true;
+	}
+
+	/**
+	 * @param string $name
+	 * @return string|boolean
+	 */
+	private function getArgValue($name) {
+		return isset($this->arguments[$name]) ? $this->arguments[$name] : false;
+	}
+
+	/**
+	 * @param string $name
+	 * @return boolean
+	 */
+	private function getArg($name) {
+		return array_key_exists($name, $this->arguments);
 	}
 
 	public function deploy()
 	{
+		if ($this->getArg('i')) {
+			$inputReader = new \gracerpro\gitdeploy\InputReader($this->config);
+			$inputReader->read();
+		}
+
 		$ftpHelper = new \gracerpro\gitdeploy\FtpHelper();
 		$ftpHelper->setHost($this->config->getValue('ftp.host'));
 		$ftpHelper->setPort($this->config->getValue('ftp.port'));

@@ -31,7 +31,7 @@ class Config
 	/**
 	 * @var string
 	 */
-	private $gitDiff = '';
+	private $gitDiff = 'origin/master master';
 
 	/**
 	 * @var integer
@@ -180,5 +180,14 @@ class Config
 	public function getGitDiff()
 	{
 		return $this->gitDiff;
+	}
+
+	/**
+	 * @param string $value
+	 * @return \gracerpro\gitdeploy\Config
+	 */
+	public function setGitDiff($value) {
+		$this->gitDiff = $value;
+		return $this;
 	}
 }

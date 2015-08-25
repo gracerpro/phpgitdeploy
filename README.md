@@ -4,6 +4,7 @@ Deploy your project with *php* and *git*!
 This is not full deploy application, like [deployer](http://deployer.org/ "deployer"),
 this is simple script for deploy your source code, only changes (delta), to remote server.
 
+Run this script with arguments like "-name value" or "--name value".
 
 ## Version
 

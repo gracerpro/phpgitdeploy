@@ -93,10 +93,12 @@ class GitHelper
 	 */
 	protected function gitGetDiffNameStatus()
 	{
-		if (empty($this->diffMode)) {
-			$this->diffMode = 'origin/master master';
+		$config = \gracerpro\gitdeploy\Config::getInstance();
+		$diffMode = $config->getGitDiff();
+		if (empty($diffMode)) {
+			$diffMode = 'origin/master master';
 		}
-		$params = 'diff ' . $this->diffMode . ' --name-status';
+		$params = 'diff ' . $diffMode . ' --name-status';
 		$command = $this->getGitCommand() . ' ' . $params;
 		echo $command, "\n";
 
