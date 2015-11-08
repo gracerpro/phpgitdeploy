@@ -16,6 +16,16 @@ Run this script with arguments like "-name value" or "--name value".
 * Show uploading progress, warnings and errors.
 * Console application.
 
+## Install
+
+Use composer.
+
+	{
+	    "require": {
+	        "gracerpro/phpgitdeploy": "1.0"
+	    }
+	}
+
 ## Dependences
 
 * [PHP](http://php.net/ "PHP") 5.4+

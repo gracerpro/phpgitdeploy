@@ -1,0 +1,11 @@
+{
+	"name": "gracerpro/phpgitdeploy",
+	"description": "Deploy your source code to the server, using git",
+	"type": "library",
+	"keywords": ["php", "deploy", "ftp"],
+	"homepage": "https://github.com/gracerpro/phpgitdeploy",
+	"license": "MIT",
+	"require": {
+		"php": ">=5.4.0"
+	}
+}
